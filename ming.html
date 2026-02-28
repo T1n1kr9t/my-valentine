@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Valentine's Day ❤️</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            background-size: cover;
+            background-position: center;
+            font-family: 'Kanit', sans-serif;
+            overflow: hidden;
+            transition: background-image 1.5s ease-in-out; 
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(255, 255, 255, 0.3); 
+            z-index: 1;
+            display: none; 
+        }
+        body.show-slideshow::after {
+            display: block; 
+        }
+
+        .card {
+            background-color: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 50%;
+            z-index: 10; 
+            transition: transform 0.3s ease;
+        }
+
+        h1 {
+            color: #ff4b82;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        p {
+            color: #555;
+            line-height: 1.6;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .hidden-message {
+            display: none;
+            margin-top: 20px;
+            animation: fadeInSurprise 1s ease-in;
+        }
+
+        /* ตกแต่งรูปให้เป็นสไตล์โพลารอยด์ฟิล์ม */
+        .polaroid {
+            background: #fff;
+            padding: 10px 10px 20px 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            display: inline-block;
+            transform: rotate(-3deg); /* เอียงรูปนิดๆ ให้ดูเป็นธรรมชาติ */
+            margin-bottom: 20px;
+            border-radius: 2px;
+            transition: transform 0.3s ease;
+        }
+
+        .polaroid:hover {
+            transform: rotate(2deg) scale(1.05); /* เอฟเฟกต์ตอนเอาเมาส์ชี้รูป */
+        }
+
+        .polaroid img {
+            width: 100%;
+            max-width: 220px;
+            height: auto;
+            object-fit: cover;
+            border: 1px solid #eee;
+        }
+
+        /* ฟอนต์ลายมือใต้รูปโพลารอยด์ */
+        .polaroid-caption {
+            font-family: 'Charm', cursive;
+            color: #333;
+            font-size: 24px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .text-surprise {
+            color: #d81b60;
+            font-weight: bold;
+            font-size: 22px;
+            min-height: 30px; /* จองพื้นที่ไว้กันข้อความขยับตอนพิมพ์ */
+        }
+
+        @keyframes fadeInSurprise {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        button {
+            background-color: #ff4b82;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 75, 130, 0.4);
+            transition: background-color 0.3s, transform 0.2s;
+            position: relative;
+            z-index: 11;
+        }
+
+        button:hover {
+            background-color: #d81b60;
+            transform: scale(1.05);
+        }
+
+        .heart {
+            position: absolute;
+            bottom: -20px;
+            font-size: 24px;
+            animation: floatUp 4s linear infinite;
+            opacity: 0;
+            z-index: 5;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100vh) scale(1.5) rotate(360deg); opacity: 0; }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Charm:wght@400;700&family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body id="bodyBg">
+
+    <div class="card" id="mainCard">
+        <h1 id="titleText">Happy Valentine's Day 💖</h1>
+        <p id="descText">ขอบคุณมากๆนะครับ ที่อยู่ด้วยกันมาตลอด ที่รักน่ารักมากๆเลย<br>ขอให้เราอยู่ด้วยกันไปตลอดไปเลยนะครับ</p>
+        
+        <button id="btnReveal" onclick="revealMessage()">กดตรงนี้สิ</button>
+
+        <div id="secretMsg" class="hidden-message">
+            <div class="polaroid">
+                <img src="card-photo.jpg" alt="Our Memory">
+                <div class="polaroid-caption">My Valentine</div>
+            </div>
+            <div class="text-surprise" id="typewriterText"></div>
+        </div>
+    </div>
+
+    <script>
+        const backgroundImages = [
+            'bg1.jpg',
+            'bg2.jpg',
+            'bg3.jpg',
+            'bg4.jpg',
+            'bg5.jpg',
+            'bg6.jpg',
+            'bg7.jpg',
+            'bg8.jpg',
+            'bg9.jpg',
+            'bg10.jpg'
+        ];
+
+        let currentBgIndex = 0;
+        let bgInterval;
+
+        // ข้อความที่ต้องการให้ค่อยๆ พิมพ์ออกมา
+        const typeWriterMessage = "รักที่รักนะครับ 🥰✨";
+        let typeIndex = 0;
+
+        function revealMessage() {
+            // ซ่อนข้อความต้อนรับเดิมและปุ่ม
+            document.getElementById("titleText").style.display = "none";
+            document.getElementById("descText").style.display = "none";
+            document.getElementById("btnReveal").style.display = "none";
+            
+            // แสดงส่วนเซอร์ไพรส์ (รูปโพลารอยด์)
+            document.getElementById("secretMsg").style.display = "block";
+            
+            // เริ่มเอฟเฟกต์พิมพ์ข้อความ
+            typeWriterEffect();
+
+            // ปล่อยหัวใจลอยแบบหมุนๆ
+            for (let i = 0; i < 35; i++) {
+                setTimeout(createHeart, i * 150);
+            }
+
+            // เริ่มเปลี่ยนพื้นหลัง
+            startBackgroundSlideshow();
+        }
+
+        // ฟังก์ชันเอฟเฟกต์พิมพ์ดีด
+        function typeWriterEffect() {
+            if (typeIndex < typeWriterMessage.length) {
+                document.getElementById("typewriterText").innerHTML += typeWriterMessage.charAt(typeIndex);
+                typeIndex++;
+                setTimeout(typeWriterEffect, 100); // ความเร็วในการพิมพ์ (มิลลิวินาที)
+            }
+        }
+
+        function startBackgroundSlideshow() {
+            const body = document.getElementById("bodyBg");
+            body.classList.add('show-slideshow');
+            changeBackground();
+            bgInterval = setInterval(changeBackground, 5000);
+        }
+
+        function changeBackground() {
+            const body = document.getElementById("bodyBg");
+            if (backgroundImages.length === 0) return;
+            body.style.backgroundImage = `url('${backgroundImages[currentBgIndex]}')`;
+            currentBgIndex = (currentBgIndex + 1) % backgroundImages.length;
+        }
+
+        function createHeart() {
+            const heart = document.createElement("div");
+            heart.classList.add("heart");
+            // สุ่มเป็นรูปหัวใจหรือดาววิ้งๆ เพิ่มความมุ้งมิ้ง
+            const icons = ["❤️", "💖", "✨", "💕"];
+            heart.innerHTML = icons[Math.floor(Math.random() * icons.length)];
+            heart.style.left = Math.random() * 100 + "vw";
+            heart.style.fontSize = (Math.random() * 20 + 15) + "px";
+            heart.style.animationDuration = (Math.random() * 3 + 3) + "s";
+            document.body.appendChild(heart);
+            setTimeout(() => { heart.remove(); }, 6000);
+        }
+    </script>
+
+</body>
+</html>
